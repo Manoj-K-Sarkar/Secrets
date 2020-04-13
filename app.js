@@ -4,6 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
+const encrypt = require("mongoose-encryption");
 
 const app = new express();
 
@@ -23,8 +24,11 @@ const userSchema = new mongoose.Schema({
     password: String
 });
 
-const User = mongoose.model("USer", userSchema);
+const secret = "Thisisasimplesecret.";
 
+userSchema.plugin(encrypt, {secret: secret, encryptedFields:["password"]});
+
+const User = mongoose.model("USer", userSchema);
 
 
 app.get("/", function(req, res) {
@@ -65,8 +69,10 @@ app.post("/login", function(req, res) {
             console.log(err);
         else {
             if(foundUser) {
-                if(foundUser.password === password)
+                if(foundUser.password === password){
+                    console.log("In foundUSerPassword!");
                     res.render("secrets");
+                }
             }
         }
     });
